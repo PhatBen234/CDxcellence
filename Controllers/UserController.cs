@@ -15,12 +15,14 @@ namespace Unilever.CDExcellent.API.Controllers
             _userService = userService;
         }
 
-        // Example endpoint for getting all users
+        // Endpoint to get all users
         [HttpGet]
         public async Task<ActionResult<List<User>>> GetAllUsers()
         {
             var users = await _userService.GetAllUsersAsync();
             return Ok(users);
         }
+
+  
     }
 }

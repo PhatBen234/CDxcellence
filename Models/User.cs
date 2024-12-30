@@ -7,7 +7,9 @@
         public string? Email { get; set; }     // Nullable
         public string? PasswordHash { get; set; }  // Nullable
         public string? Role { get; set; }      // Nullable
+
+        // Fields for password reset
+        public string? ResetPasswordOtp { get; set; }  // OTP for password reset
+        public DateTime? ResetPasswordOtpExpiry { get; set; } // Expiry time for OTP
     }
-
-
 }
