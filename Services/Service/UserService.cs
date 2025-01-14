@@ -80,14 +80,12 @@ public class UserService : IUserService
         var existingUser = await _context.Users.FindAsync(id);
         if (existingUser == null) return null;
 
-        // Allow only admin to change roles
         if (user.Role != existingUser.Role && !IsAdmin())
             throw new UnauthorizedAccessException("Only Admin can change user roles.");
 
         existingUser.FullName = user.FullName;
         existingUser.Email = user.Email;
 
-        // Update password only if provided
         if (!string.IsNullOrEmpty(user.Password))
         {
             existingUser.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);

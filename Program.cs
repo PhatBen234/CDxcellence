@@ -3,9 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Unilever.CDExcellent.API.Data;
-using Unilever.CDExcellent.API.Services;
 using Unilever.CDExcellent.API.Models;
 using System.Security.Claims;
+using Unilever.CDExcellent.API.Services.IService;
+using Unilever.CDExcellent.API.Services.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,8 +20,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
-// Register IHttpContextAccessor
-builder.Services.AddHttpContextAccessor();  // <-- Add this line
+// Register services for Area and Distributor management
+builder.Services.AddScoped<IAreaService, AreaService>();
+builder.Services.AddScoped<IDistributorService, DistributorService>();
+
+// Register IHttpContextAccessor for accessing the current HTTP context
+builder.Services.AddHttpContextAccessor();
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -28,14 +33,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false, 
-            ValidateAudience = false,  
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero  // Reduces token expiration delay
         };
 
+        // Event hooks for better error handling
         options.Events = new JwtBearerEvents
         {
             OnAuthenticationFailed = context =>
@@ -47,25 +53,38 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             {
                 Console.WriteLine("JWT Challenge: " + context.ErrorDescription);
                 return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine("JWT Token validated successfully.");
+                return Task.CompletedTask;
             }
         };
     });
 
-
-
-
-// Configure Authorization policy for Admin role
+// Configure Authorization policies
 builder.Services.AddAuthorization(options =>
 {
+    // Ensure that only users with 'Admin' role can access Admin resources
     options.AddPolicy("AdminOnly", policy =>
-        policy.RequireClaim(ClaimTypes.Role, "Admin")); // Use ClaimTypes.Role instead of "Role"
+        policy.RequireClaim(ClaimTypes.Role, "Admin"));
 });
 
 // Add services for controllers and Swagger UI
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Optional: Custom Swagger settings
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Unilever CDExcellent API",
+        Version = "v1",
+        Description = "API for managing users, distributors, and areas",
+    });
+});
 
+// Build the application
 var app = builder.Build();
 
 // Configure middleware pipeline
@@ -74,7 +93,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Unilever CDExcellent API v1");
+    });
 }
 
 // Enable Authentication and Authorization

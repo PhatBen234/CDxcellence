@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 using Unilever.CDExcellent.API.Data;
 using Unilever.CDExcellent.API.Models;
 using MailKit.Net.Smtp;
-using Unilever.CDExcellent.API.Services;
+using Unilever.CDExcellent.API.Services.IService;
+using Unilever.CDExcellent.API.Models.Dto;
 
 public class AuthService : IAuthService
 {

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Unilever.CDExcellent.API.Data;
 
@@ -11,9 +12,10 @@ using Unilever.CDExcellent.API.Data;
 namespace Unilever.CDExcellent.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250106052325_AddAreaManagementModels")]
+    partial class AddAreaManagementModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,16 +38,14 @@ namespace Unilever.CDExcellent.API.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
@@ -65,9 +65,6 @@ namespace Unilever.CDExcellent.API.Migrations
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("AssignedAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("AreaId", "UserId");
 
@@ -93,13 +90,11 @@ namespace Unilever.CDExcellent.API.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -153,9 +148,9 @@ namespace Unilever.CDExcellent.API.Migrations
                         .IsRequired();
 
                     b.HasOne("Unilever.CDExcellent.API.Models.User", "User")
-                        .WithMany("AreaUsers")
+                        .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Area");
@@ -179,11 +174,6 @@ namespace Unilever.CDExcellent.API.Migrations
                     b.Navigation("AreaUsers");
 
                     b.Navigation("Distributors");
-                });
-
-            modelBuilder.Entity("Unilever.CDExcellent.API.Models.User", b =>
-                {
-                    b.Navigation("AreaUsers");
                 });
 #pragma warning restore 612, 618
         }
