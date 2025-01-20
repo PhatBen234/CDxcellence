@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Unilever.CDExcellent.API.Models;
+using Unilever.CDExcellent.API.Models.Entities;
 using Unilever.CDExcellent.API.Services.IService;
 
 namespace Unilever.CDExcellent.API.Controllers

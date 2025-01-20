@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Unilever.CDExcellent.API.Models;
+using Unilever.CDExcellent.API.Models.Entities;
 using Unilever.CDExcellent.API.Services;
 
 namespace Unilever.CDExcellent.API.Controllers

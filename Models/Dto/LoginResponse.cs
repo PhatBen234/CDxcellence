@@ -1,4 +1,4 @@
-﻿namespace Unilever.CDExcellent.API.Models
+﻿namespace Unilever.CDExcellent.API.Models.Dto
 {
     public class LoginResponse
     {

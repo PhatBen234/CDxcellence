@@ -1,4 +1,4 @@
-﻿using Unilever.CDExcellent.API.Models;
+﻿using Unilever.CDExcellent.API.Models.Entities;
 
 public interface IUserService
 {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using MimeKit;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -8,30 +7,21 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Unilever.CDExcellent.API.Data;
-using Unilever.CDExcellent.API.Models;
-using MailKit.Net.Smtp;
 using Unilever.CDExcellent.API.Services.IService;
 using Unilever.CDExcellent.API.Models.Dto;
+using Unilever.CDExcellent.API.Models.Entities;
 
 public class AuthService : IAuthService
 {
     private readonly AppDbContext _context;
+    private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
-    private readonly string _smtpServer;
-    private readonly string _smtpUser;
-    private readonly string _smtpPassword;
-    private readonly int _smtpPort;
 
-    public AuthService(AppDbContext context, IConfiguration configuration)
+    public AuthService(AppDbContext context, IEmailService emailService, IConfiguration configuration)
     {
         _context = context;
+        _emailService = emailService;
         _configuration = configuration;
-
-        var smtpSettings = configuration.GetSection("SmtpSettings");
-        _smtpServer = smtpSettings["Server"];
-        _smtpUser = smtpSettings["User"];
-        _smtpPassword = smtpSettings["Password"];
-        _smtpPort = int.Parse(smtpSettings["Port"]);
     }
 
     public async Task<AuthResult> RegisterAsync(RegisterRequest request)
@@ -123,41 +113,16 @@ public class AuthService : IAuthService
 
         var otp = new Random().Next(100000, 999999).ToString();
 
-        await SendOtpEmailAsync(user.Email, otp);
+        var subject = "Password Reset OTP";
+        var body = $"Dear User,\n\nYour OTP for password reset is: {otp}.\nThis OTP is valid for 10 minutes.\n\nBest regards,\nCDExcellent Support Team";
+
+        await _emailService.SendEmailAsync(user.Email, subject, body);
 
         return new AuthResult
         {
             Success = true,
             Message = "New OTP sent to email."
         };
-    }
-
-    private async Task SendOtpEmailAsync(string recipientEmail, string otp)
-    {
-        var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("CDExcellent Support", _smtpUser));
-        message.To.Add(new MailboxAddress("", recipientEmail));
-        message.Subject = "Password Reset OTP";
-
-        message.Body = new TextPart("plain")
-        {
-            Text = $"Dear User,\n\nYour OTP for password reset is: {otp}.\nThis OTP is valid for 10 minutes.\n\nBest regards,\nCDExcellent Support Team"
-        };
-
-        using (var client = new SmtpClient())
-        {
-            try
-            {
-                await client.ConnectAsync(_smtpServer, _smtpPort, MailKit.Security.SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(_smtpUser, _smtpPassword);
-                await client.SendAsync(message);
-                await client.DisconnectAsync(true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error sending email: {ex.Message}");
-            }
-        }
     }
 
     public async Task<AuthResult> ResetPasswordAsync(string email, string otp, string newPassword)

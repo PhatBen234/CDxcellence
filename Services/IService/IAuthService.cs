@@ -1,5 +1,5 @@
-﻿using Unilever.CDExcellent.API.Models;
-using Unilever.CDExcellent.API.Models.Dto;
+﻿using Unilever.CDExcellent.API.Models.Dto;
+using Unilever.CDExcellent.API.Models.Entities;
 
 namespace Unilever.CDExcellent.API.Services.IService
 {

@@ -1,5 +1,5 @@
 ﻿using Unilever.CDExcellent.API.Data;
-using Unilever.CDExcellent.API.Models;
+using Unilever.CDExcellent.API.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Unilever.CDExcellent.API.Models.Dto;
 using Unilever.CDExcellent.API.Services.IService;

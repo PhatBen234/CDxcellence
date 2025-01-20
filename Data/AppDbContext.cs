@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Unilever.CDExcellent.API.Models;
+using Unilever.CDExcellent.API.Models.Entities;
 
 namespace Unilever.CDExcellent.API.Data
 {
@@ -11,55 +11,51 @@ namespace Unilever.CDExcellent.API.Data
         public DbSet<Area> Areas { get; set; }
         public DbSet<Distributor> Distributors { get; set; }
         public DbSet<AreaUser> AreaUsers { get; set; }
-
+        public DbSet<VisitPlan> VisitPlans { get; set; }
+        public DbSet<VisitPlanGuest> VisitPlanGuests { get; set; } 
+        public DbSet<Notification> Notifications { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure composite key for AreaUser
+            // Cấu hình AreaUser
             modelBuilder.Entity<AreaUser>()
                 .HasKey(au => new { au.AreaId, au.UserId });
 
-            // Configure relationships for AreaUser
             modelBuilder.Entity<AreaUser>()
                 .HasOne(au => au.Area)
                 .WithMany(a => a.AreaUsers)
-                .HasForeignKey(au => au.AreaId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(au => au.AreaId);
 
             modelBuilder.Entity<AreaUser>()
                 .HasOne(au => au.User)
                 .WithMany(u => u.AreaUsers)
-                .HasForeignKey(au => au.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete on User
+                .HasForeignKey(au => au.UserId);
 
-            // Configure relationships for Distributor
+            // Cấu hình Distributor
             modelBuilder.Entity<Distributor>()
                 .HasOne(d => d.Area)
                 .WithMany(a => a.Distributors)
-                .HasForeignKey(d => d.AreaId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(d => d.AreaId);
 
-            // Configure required fields and lengths
-            modelBuilder.Entity<Area>()
-                .Property(a => a.Code)
-                .IsRequired()
-                .HasMaxLength(50);
+            // Cấu hình VisitPlanGuest (Bảng trung gian)
+            modelBuilder.Entity<VisitPlanGuest>()
+                .HasKey(vpg => new { vpg.VisitPlanId, vpg.GuestId }); // Khóa chính
 
-            modelBuilder.Entity<Area>()
-                .Property(a => a.Name)
-                .IsRequired()
-                .HasMaxLength(100);
+            modelBuilder.Entity<VisitPlanGuest>()
+                .HasOne(vpg => vpg.VisitPlan)
+                .WithMany(vp => vp.Guests)
+                .HasForeignKey(vpg => vpg.VisitPlanId);
 
-            modelBuilder.Entity<Distributor>()
-                .Property(d => d.Name)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            modelBuilder.Entity<Distributor>()
-                .Property(d => d.Email)
-                .IsRequired()
-                .HasMaxLength(150);
+            modelBuilder.Entity<VisitPlanGuest>()
+                .HasOne(vpg => vpg.Guest)
+                .WithMany()
+                .HasForeignKey(vpg => vpg.GuestId);
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(n => n.Id);
+                entity.Property(n => n.Message).IsRequired();
+            });
         }
     }
 }

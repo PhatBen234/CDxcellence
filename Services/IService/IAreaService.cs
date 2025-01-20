@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Unilever.CDExcellent.API.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Unilever.CDExcellent.API.Models.Entities;
 
 namespace Unilever.CDExcellent.API.Services.IService
 {

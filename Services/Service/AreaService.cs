@@ -1,8 +1,8 @@
-﻿using Unilever.CDExcellent.API.Models;
-using Unilever.CDExcellent.API.Data;
+﻿using Unilever.CDExcellent.API.Data;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using Unilever.CDExcellent.API.Services.IService;
+using Unilever.CDExcellent.API.Models.Entities;
 
 namespace Unilever.CDExcellent.API.Services.Service
 {
@@ -93,6 +93,7 @@ namespace Unilever.CDExcellent.API.Services.Service
             await _context.SaveChangesAsync();
             return true;
         }
+
         public async Task<bool> AssignUsersToAreaAsync(int areaId, List<int> userIds)
         {
             var area = await _context.Areas.FindAsync(areaId);
@@ -120,7 +121,6 @@ namespace Unilever.CDExcellent.API.Services.Service
             return true;
         }
 
-        // 2. Xóa người dùng khỏi Area
         public async Task<bool> RemoveUsersFromAreaAsync(int areaId, List<int> userIds)
         {
             var areaUsers = await _context.AreaUsers

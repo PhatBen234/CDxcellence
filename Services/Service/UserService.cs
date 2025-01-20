@@ -8,7 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Unilever.CDExcellent.API.Data;
-using Unilever.CDExcellent.API.Models;
+using Unilever.CDExcellent.API.Models.Entities;
 
 public class UserService : IUserService
 {

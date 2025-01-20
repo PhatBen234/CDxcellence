@@ -7,6 +7,7 @@ using Unilever.CDExcellent.API.Models;
 using System.Security.Claims;
 using Unilever.CDExcellent.API.Services.IService;
 using Unilever.CDExcellent.API.Services.Service;
+using Unilever.CDExcellent.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,11 @@ builder.Services.AddScoped<IUserService, UserService>();
 // Register services for Area and Distributor management
 builder.Services.AddScoped<IAreaService, AreaService>();
 builder.Services.AddScoped<IDistributorService, DistributorService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Register VisitPlan service
+builder.Services.AddScoped<IVisitPlanService, VisitPlanService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // Register IHttpContextAccessor for accessing the current HTTP context
 builder.Services.AddHttpContextAccessor();
@@ -75,13 +81,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // Optional: Custom Swagger settings
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Title = "Unilever CDExcellent API",
         Version = "v1",
         Description = "API for managing users, distributors, and areas",
     });
+});
+
+// Add CORS policy if required (uncomment if needed)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", builder =>
+        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
 
 // Build the application
@@ -98,6 +110,9 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Unilever CDExcellent API v1");
     });
 }
+
+// Enable CORS (uncomment if needed)
+app.UseCors("AllowAllOrigins");
 
 // Enable Authentication and Authorization
 app.UseAuthentication(); // Add authentication middleware
