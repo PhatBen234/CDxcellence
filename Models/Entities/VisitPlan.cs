@@ -9,9 +9,7 @@ public class VisitPlan
     public int DistributorId { get; set; }
     public string Purpose { get; set; }
     public bool IsConfirmed { get; set; }
-
     public Distributor Distributor { get; set; } = null!;
-
-    // Danh sách khách mời
     public List<VisitPlanGuest> Guests { get; set; } = new();
+    public List<UserTask> UserTasks { get; set; } = new();
 }

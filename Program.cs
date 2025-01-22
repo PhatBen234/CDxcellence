@@ -29,6 +29,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 // Register VisitPlan service
 builder.Services.AddScoped<IVisitPlanService, VisitPlanService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IUserTaskService, UserTaskService>();
 
 // Register IHttpContextAccessor for accessing the current HTTP context
 builder.Services.AddHttpContextAccessor();

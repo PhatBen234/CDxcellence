@@ -32,8 +32,6 @@ namespace Unilever.CDExcellent.API.Services.Service
 
             _context.VisitPlans.Add(visitPlan);
             await _context.SaveChangesAsync();
-
-            // Gửi thông báo cho các khách mời
             foreach (var guestId in dto.GuestIds)
             {
                 var message = $"You have been invited to a visit plan on {dto.VisitDate:yyyy-MM-dd} at {dto.VisitTime}. Purpose: {dto.Purpose}";
@@ -98,14 +96,13 @@ namespace Unilever.CDExcellent.API.Services.Service
             visitPlan.Purpose = dto.Purpose;
             visitPlan.IsConfirmed = dto.IsConfirmed;
 
-            // Cập nhật danh sách khách mời
             var previousGuestIds = visitPlan.Guests.Select(g => g.GuestId).ToList();
             visitPlan.Guests.Clear();
             visitPlan.Guests.AddRange(dto.GuestIds.Select(gId => new VisitPlanGuest { GuestId = gId }));
 
             await _context.SaveChangesAsync();
 
-            // Gửi thông báo cho khách mời mới
+
             var newGuestIds = dto.GuestIds.Except(previousGuestIds);
             foreach (var newGuestId in newGuestIds)
             {

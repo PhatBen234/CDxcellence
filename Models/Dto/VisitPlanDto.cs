@@ -9,6 +9,9 @@
         public int DistributorId { get; set; }
         public string Purpose { get; set; }
         public bool IsConfirmed { get; set; }
+        public string VisitStatus { get; set; } // New: Status
         public List<int> GuestIds { get; set; } = new();
+        public List<UserTaskDto> Tasks { get; set; } = new(); // New: Include tasks
     }
+
 }

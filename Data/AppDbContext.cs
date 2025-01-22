@@ -12,13 +12,14 @@ namespace Unilever.CDExcellent.API.Data
         public DbSet<Distributor> Distributors { get; set; }
         public DbSet<AreaUser> AreaUsers { get; set; }
         public DbSet<VisitPlan> VisitPlans { get; set; }
-        public DbSet<VisitPlanGuest> VisitPlanGuests { get; set; } 
+        public DbSet<VisitPlanGuest> VisitPlanGuests { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<UserTask> UserTasks { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Cấu hình AreaUser
             modelBuilder.Entity<AreaUser>()
                 .HasKey(au => new { au.AreaId, au.UserId });
 
@@ -32,15 +33,13 @@ namespace Unilever.CDExcellent.API.Data
                 .WithMany(u => u.AreaUsers)
                 .HasForeignKey(au => au.UserId);
 
-            // Cấu hình Distributor
             modelBuilder.Entity<Distributor>()
                 .HasOne(d => d.Area)
                 .WithMany(a => a.Distributors)
                 .HasForeignKey(d => d.AreaId);
 
-            // Cấu hình VisitPlanGuest (Bảng trung gian)
             modelBuilder.Entity<VisitPlanGuest>()
-                .HasKey(vpg => new { vpg.VisitPlanId, vpg.GuestId }); // Khóa chính
+                .HasKey(vpg => new { vpg.VisitPlanId, vpg.GuestId });
 
             modelBuilder.Entity<VisitPlanGuest>()
                 .HasOne(vpg => vpg.VisitPlan)
@@ -51,11 +50,22 @@ namespace Unilever.CDExcellent.API.Data
                 .HasOne(vpg => vpg.Guest)
                 .WithMany()
                 .HasForeignKey(vpg => vpg.GuestId);
+
             modelBuilder.Entity<Notification>(entity =>
             {
                 entity.HasKey(n => n.Id);
                 entity.Property(n => n.Message).IsRequired();
             });
+
+            modelBuilder.Entity<UserTask>()
+                .HasOne(t => t.VisitPlan)
+                .WithMany(vp => vp.UserTasks)
+                .HasForeignKey(t => t.VisitPlanId);
+
+            modelBuilder.Entity<UserTask>()
+                .HasOne(t => t.Assignee)
+                .WithMany()
+                .HasForeignKey(t => t.AssigneeId);
         }
     }
 }

@@ -133,8 +133,6 @@ namespace Unilever.CDExcellent.API.Services.Service
             await _context.SaveChangesAsync();
             return true;
         }
-
-        // 3. Lấy danh sách người dùng thuộc Area
         public async Task<IEnumerable<User>> GetUsersByAreaIdAsync(int areaId)
         {
             var users = await _context.AreaUsers
@@ -150,7 +148,7 @@ namespace Unilever.CDExcellent.API.Services.Service
             if (file == null || file.Length == 0)
                 throw new ArgumentException("No file uploaded.");
 
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // Add this line
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             List<Area> areas = new List<Area>();
 
@@ -159,10 +157,10 @@ namespace Unilever.CDExcellent.API.Services.Service
                 await file.CopyToAsync(stream);
                 using (var package = new ExcelPackage(stream))
                 {
-                    var worksheet = package.Workbook.Worksheets[0]; // First worksheet
-                    int rowCount = worksheet.Dimension.Rows; // Total rows
+                    var worksheet = package.Workbook.Worksheets[0]; 
+                    int rowCount = worksheet.Dimension.Rows; 
 
-                    for (int row = 2; row <= rowCount; row++) // Skip header row
+                    for (int row = 2; row <= rowCount; row++) 
                     {
                         var name = worksheet.Cells[row, 1].Text; // Column 1: Name
                         var code = worksheet.Cells[row, 2].Text; // Column 2: Code
