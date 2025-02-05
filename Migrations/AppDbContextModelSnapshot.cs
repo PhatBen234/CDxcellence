@@ -74,62 +74,6 @@ namespace Unilever.CDExcellent.API.Migrations
                     b.ToTable("AreaUsers");
                 });
 
-            modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.Attachment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserTaskId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserTaskId");
-
-                    b.ToTable("Attachment");
-                });
-
-            modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserTaskId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserTaskId");
-
-                    b.ToTable("Comment");
-                });
-
             modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.Distributor", b =>
                 {
                     b.Property<int>("Id")
@@ -182,6 +126,13 @@ namespace Unilever.CDExcellent.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
@@ -190,7 +141,59 @@ namespace Unilever.CDExcellent.API.Migrations
                     b.ToTable("Notifications");
                 });
 
-            modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.User", b =>
+            modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.UserTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("AssigneeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VisitPlanId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssigneeId");
+
+                    b.HasIndex("VisitPlanId");
+
+                    b.ToTable("UserTasks");
+                });
+
+            modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.VisitPlanGuest", b =>
+                {
+                    b.Property<int>("VisitPlanId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GuestId")
+                        .HasColumnType("int");
+
+                    b.HasKey("VisitPlanId", "GuestId");
+
+                    b.HasIndex("GuestId");
+
+                    b.ToTable("VisitPlanGuests");
+                });
+
+            modelBuilder.Entity("User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -222,68 +225,6 @@ namespace Unilever.CDExcellent.API.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.UserTask", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("AssigneeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CreatorId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ReporterId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("VisitPlanId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssigneeId");
-
-                    b.HasIndex("CreatorId");
-
-                    b.HasIndex("ReporterId");
-
-                    b.HasIndex("VisitPlanId");
-
-                    b.ToTable("UserTasks");
-                });
-
-            modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.VisitPlanGuest", b =>
-                {
-                    b.Property<int>("VisitPlanId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GuestId")
-                        .HasColumnType("int");
-
-                    b.HasKey("VisitPlanId", "GuestId");
-
-                    b.HasIndex("GuestId");
-
-                    b.ToTable("VisitPlanGuests");
-                });
-
             modelBuilder.Entity("VisitPlan", b =>
                 {
                     b.Property<int>("Id")
@@ -308,10 +249,6 @@ namespace Unilever.CDExcellent.API.Migrations
                     b.Property<DateTime>("VisitDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("VisitStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("VisitTime")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -331,7 +268,7 @@ namespace Unilever.CDExcellent.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Unilever.CDExcellent.API.Models.Entities.User", "User")
+                    b.HasOne("User", "User")
                         .WithMany("AreaUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -340,36 +277,6 @@ namespace Unilever.CDExcellent.API.Migrations
                     b.Navigation("Area");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.Attachment", b =>
-                {
-                    b.HasOne("Unilever.CDExcellent.API.Models.Entities.UserTask", "UserTask")
-                        .WithMany("Attachments")
-                        .HasForeignKey("UserTaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserTask");
-                });
-
-            modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.Comment", b =>
-                {
-                    b.HasOne("Unilever.CDExcellent.API.Models.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Unilever.CDExcellent.API.Models.Entities.UserTask", "UserTask")
-                        .WithMany("Comments")
-                        .HasForeignKey("UserTaskId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
-
-                    b.Navigation("UserTask");
                 });
 
             modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.Distributor", b =>
@@ -385,21 +292,9 @@ namespace Unilever.CDExcellent.API.Migrations
 
             modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.UserTask", b =>
                 {
-                    b.HasOne("Unilever.CDExcellent.API.Models.Entities.User", "Assignee")
+                    b.HasOne("User", "Assignee")
                         .WithMany()
                         .HasForeignKey("AssigneeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Unilever.CDExcellent.API.Models.Entities.User", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Unilever.CDExcellent.API.Models.Entities.User", "Reporter")
-                        .WithMany()
-                        .HasForeignKey("ReporterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -411,16 +306,12 @@ namespace Unilever.CDExcellent.API.Migrations
 
                     b.Navigation("Assignee");
 
-                    b.Navigation("Creator");
-
-                    b.Navigation("Reporter");
-
                     b.Navigation("VisitPlan");
                 });
 
             modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.VisitPlanGuest", b =>
                 {
-                    b.HasOne("Unilever.CDExcellent.API.Models.Entities.User", "Guest")
+                    b.HasOne("User", "Guest")
                         .WithMany()
                         .HasForeignKey("GuestId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -460,16 +351,9 @@ namespace Unilever.CDExcellent.API.Migrations
                     b.Navigation("VisitPlans");
                 });
 
-            modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.User", b =>
+            modelBuilder.Entity("User", b =>
                 {
                     b.Navigation("AreaUsers");
-                });
-
-            modelBuilder.Entity("Unilever.CDExcellent.API.Models.Entities.UserTask", b =>
-                {
-                    b.Navigation("Attachments");
-
-                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("VisitPlan", b =>

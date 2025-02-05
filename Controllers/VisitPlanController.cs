@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Unilever.CDExcellent.API.Models.Dto;
-using Unilever.CDExcellent.API.Services;
+using Unilever.CDExcellent.API.Services.IService;
 
 namespace Unilever.CDExcellent.API.Controllers
 {
@@ -64,5 +64,12 @@ namespace Unilever.CDExcellent.API.Controllers
 
             return NoContent();
         }
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchVisitPlans([FromQuery] string keyword)
+        {
+            var visitPlans = await _visitPlanService.SearchVisitPlansAsync(keyword);
+            return Ok(visitPlans);
+        }
+
     }
 }

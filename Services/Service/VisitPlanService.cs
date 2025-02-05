@@ -32,10 +32,13 @@ namespace Unilever.CDExcellent.API.Services.Service
 
             _context.VisitPlans.Add(visitPlan);
             await _context.SaveChangesAsync();
+
+            // Gửi thông báo cho các khách mời
             foreach (var guestId in dto.GuestIds)
             {
+                var title = "Visit Plan Invitation";
                 var message = $"You have been invited to a visit plan on {dto.VisitDate:yyyy-MM-dd} at {dto.VisitTime}. Purpose: {dto.Purpose}";
-                await _notificationService.CreateNotificationAsync(guestId, message);
+                await _notificationService.CreateNotificationAsync(guestId, dto.ActorId, title, message);
             }
 
             dto.Id = visitPlan.Id;
@@ -102,12 +105,13 @@ namespace Unilever.CDExcellent.API.Services.Service
 
             await _context.SaveChangesAsync();
 
-
+            // Gửi thông báo đến khách mời mới
             var newGuestIds = dto.GuestIds.Except(previousGuestIds);
             foreach (var newGuestId in newGuestIds)
             {
-                var message = $"You have been invited to a visit plan on {dto.VisitDate:yyyy-MM-dd} at {dto.VisitTime}. Purpose: {dto.Purpose}";
-                await _notificationService.CreateNotificationAsync(newGuestId, message);
+                var title = "Visit Plan Updated";
+                var message = $"Your visit plan on {dto.VisitDate:yyyy-MM-dd} at {dto.VisitTime} has been updated. Purpose: {dto.Purpose}";
+                await _notificationService.CreateNotificationAsync(newGuestId, dto.ActorId, title, message);
             }
 
             dto.Id = visitPlan.Id;
@@ -122,6 +126,29 @@ namespace Unilever.CDExcellent.API.Services.Service
             _context.VisitPlans.Remove(visitPlan);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<IEnumerable<VisitPlanDto>> SearchVisitPlansAsync(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return new List<VisitPlanDto>();
+
+            var visitPlans = await _context.VisitPlans
+                .Where(vp => vp.Purpose.Contains(keyword) ||
+                             vp.Distributor.Name.Contains(keyword)) // Tìm theo tên Distributor hoặc Purpose
+                .ToListAsync();
+
+            return visitPlans.Select(vp => new VisitPlanDto
+            {
+                Id = vp.Id,
+                ActorId = vp.ActorId,
+                VisitDate = vp.VisitDate,
+                VisitTime = vp.VisitTime,
+                DistributorId = vp.DistributorId,
+                Purpose = vp.Purpose,
+                IsConfirmed = vp.IsConfirmed,
+                GuestIds = vp.Guests.Select(g => g.GuestId).ToList()
+            });
         }
     }
 }
