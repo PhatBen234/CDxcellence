@@ -7,7 +7,7 @@ namespace Unilever.CDExcellent.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // 🔒 Yêu cầu đăng nhập cho tất cả API
+    [Authorize] 
     public class DistributorController : ControllerBase
     {
         private readonly IDistributorService _distributorService;
@@ -17,7 +17,6 @@ namespace Unilever.CDExcellent.API.Controllers
             _distributorService = distributorService;
         }
 
-        // 🔒 Chỉ Admin hoặc Owner được tạo Distributor
         [Authorize(Roles = "Admin,Owner")]
         [HttpPost]
         public async Task<IActionResult> CreateDistributor([FromBody] DistributorDto dto)
@@ -33,7 +32,6 @@ namespace Unilever.CDExcellent.API.Controllers
             }
         }
 
-        // 🔒 Phải đăng nhập mới xem danh sách Distributor
         [HttpGet]
         public async Task<IActionResult> GetAllDistributors()
         {
@@ -41,7 +39,6 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(distributors);
         }
 
-        // 🔒 Phải đăng nhập mới xem chi tiết Distributor
         [HttpGet("{id}")]
         public async Task<IActionResult> GetDistributorById(int id)
         {
@@ -52,7 +49,6 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(distributor);
         }
 
-        // 🔒 Chỉ Admin hoặc Owner được cập nhật Distributor
         [Authorize(Roles = "Admin,Owner")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateDistributor(int id, [FromBody] DistributorDto dto)
@@ -64,7 +60,6 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(updatedDistributor);
         }
 
-        // 🔒 Chỉ Admin hoặc Owner được xóa Distributor
         [Authorize(Roles = "Admin,Owner")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDistributor(int id)

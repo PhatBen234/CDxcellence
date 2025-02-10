@@ -9,7 +9,7 @@ namespace Unilever.CDExcellent.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // 🔒 Yêu cầu đăng nhập cho tất cả API
+    [Authorize] 
     public class NotificationController : ControllerBase
     {
         private readonly INotificationService _notificationService;
@@ -19,7 +19,6 @@ namespace Unilever.CDExcellent.API.Controllers
             _notificationService = notificationService;
         }
 
-        // 1. Lấy danh sách thông báo của user
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetNotifications(int userId)
         {
@@ -27,7 +26,6 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(notifications);
         }
 
-        // 2. Lấy danh sách thông báo chưa đọc
         [HttpGet("{userId}/unread")]
         public async Task<IActionResult> GetUnreadNotifications(int userId)
         {
@@ -35,7 +33,6 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(notifications);
         }
 
-        // 3. Tìm kiếm thông báo theo từ khóa
         [HttpGet("{userId}/search")]
         public async Task<IActionResult> SearchNotifications(int userId, [FromQuery] string keyword)
         {
@@ -43,7 +40,6 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(notifications);
         }
 
-        // 4. Lấy chi tiết thông báo
         [HttpGet("detail/{notificationId}")]
         public async Task<IActionResult> GetNotificationDetail(int notificationId)
         {
@@ -53,7 +49,6 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(notification);
         }
 
-        // 5. Tạo thông báo mới
         [HttpPost]
         public async Task<IActionResult> CreateNotification([FromBody] CreateNotificationRequest request)
         {
@@ -62,7 +57,6 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(new { message = "Notification sent successfully." });
         }
 
-        // 6. Đánh dấu thông báo đã đọc
         [HttpPut("{notificationId}/read")]
         public async Task<IActionResult> MarkAsRead(int notificationId)
         {

@@ -7,7 +7,7 @@ namespace Unilever.CDExcellent.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // 🔒 Yêu cầu đăng nhập cho tất cả API
+    [Authorize]
     public class VisitPlanController : ControllerBase
     {
         private readonly IVisitPlanService _visitPlanService;
