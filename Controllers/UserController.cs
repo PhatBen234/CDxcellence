@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Unilever.CDExcellent.API.Models.Entities;
 using Unilever.CDExcellent.API.Services;
@@ -13,15 +14,28 @@ namespace Unilever.CDExcellent.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IHttpContextAccessor httpContextAccessor)
         {
             _userService = userService;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        private string GetCurrentUserRole()
+        {
+            return _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+        }
+
+        private int? GetCurrentUserId()
+        {
+            var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userIdClaim != null ? int.Parse(userIdClaim) : (int?)null;
         }
 
         // GET: api/users
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Owner")]
         public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -36,11 +50,21 @@ namespace Unilever.CDExcellent.API.Controllers
             if (user == null)
                 return NotFound("User not found");
 
+            // Chỉ Admin, Owner hoặc chính người dùng mới có thể xem thông tin
+            var currentUserRole = GetCurrentUserRole();
+            var currentUserId = GetCurrentUserId();
+
+            if (currentUserRole != "Admin" && currentUserRole != "Owner" && currentUserId != id)
+            {
+                return Forbid("You are not authorized to view this user’s details.");
+            }
+
             return Ok(user);
         }
 
         // POST: api/users
         [HttpPost]
+        [Authorize(Roles = "Admin,Owner")]
         public async Task<ActionResult<User>> CreateUser([FromBody] User newUser)
         {
             try
@@ -64,6 +88,7 @@ namespace Unilever.CDExcellent.API.Controllers
 
         // PUT: api/users/{id}
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin,Owner")]
         public async Task<ActionResult<User>> UpdateUser(int id, [FromBody] User user)
         {
             var updatedUser = await _userService.UpdateUserAsync(id, user);
@@ -75,19 +100,29 @@ namespace Unilever.CDExcellent.API.Controllers
 
         // DELETE: api/users/{id}
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Owner")]
         public async Task<IActionResult> DeleteUser(int id)
         {
+            var userToDelete = await _userService.GetUserByIdAsync(id);
+            if (userToDelete == null)
+                return NotFound("User not found");
+
+            // Admin không thể xóa Owner
+            if (userToDelete.Role == "Owner" && GetCurrentUserRole() != "Owner")
+            {
+                return Forbid("You are not authorized to delete an Owner.");
+            }
+
             var success = await _userService.DeleteUserAsync(id);
             if (!success)
-                return NotFound("User not found");
+                return StatusCode(500, "An error occurred while deleting user.");
 
             return NoContent();
         }
 
         // POST: api/users/import
         [HttpPost("import")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Owner")]
         public async Task<IActionResult> ImportUsersFromExcel([FromForm] IFormFile file)
         {
             if (file == null || file.Length == 0)

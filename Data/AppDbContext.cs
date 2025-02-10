@@ -8,6 +8,7 @@ namespace Unilever.CDExcellent.API.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<OtpCode> OtpCodes { get; set; }
         public DbSet<Area> Areas { get; set; }
         public DbSet<Distributor> Distributors { get; set; }
         public DbSet<AreaUser> AreaUsers { get; set; }

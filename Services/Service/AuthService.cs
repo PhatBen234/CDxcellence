@@ -40,7 +40,7 @@ public class AuthService : IAuthService
             FullName = request.FullName,
             Email = request.Email,
             Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Role = "User"
+            Role = request.Role
         };
 
         _context.Users.Add(newUser);
@@ -88,7 +88,7 @@ public class AuthService : IAuthService
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expires = DateTime.Now.AddDays(1);
+        var expires = DateTime.UtcNow.AddDays(1);
 
         var token = new JwtSecurityToken(
             claims: claims,
@@ -111,17 +111,34 @@ public class AuthService : IAuthService
             };
         }
 
+        // Tạo OTP ngẫu nhiên 6 chữ số
         var otp = new Random().Next(100000, 999999).ToString();
 
+        // Xóa OTP cũ (nếu có) trước khi lưu mới
+        _context.OtpCodes.RemoveRange(_context.OtpCodes.Where(o => o.Email == email));
+        await _context.SaveChangesAsync();
+
+        // Lưu OTP vào database với thời gian hết hạn
+        var otpEntry = new OtpCode
+        {
+            Email = email,
+            Code = otp,
+            ExpiryTime = DateTime.UtcNow.AddMinutes(10)
+        };
+
+        await _context.OtpCodes.AddAsync(otpEntry);
+        await _context.SaveChangesAsync();
+
+        // Gửi OTP qua email
         var subject = "Password Reset OTP";
-        var body = $"Dear User,\n\nYour OTP for password reset is: {otp}.\nThis OTP is valid for 10 minutes.\n\nBest regards,\nCDExcellent Support Team";
+        var body = $"Dear {user.FullName},\n\nYour OTP for password reset is: {otp}.\nThis OTP is valid for 10 minutes.\n\nBest regards,\nCDExcellent Support Team";
 
         await _emailService.SendEmailAsync(user.Email, subject, body);
 
         return new AuthResult
         {
             Success = true,
-            Message = "New OTP sent to email."
+            Message = "OTP sent to email."
         };
     }
 
@@ -137,7 +154,23 @@ public class AuthService : IAuthService
             };
         }
 
+        // Kiểm tra OTP có tồn tại & còn hiệu lực không
+        var storedOtp = await _context.OtpCodes.FirstOrDefaultAsync(o => o.Email == email && o.Code == otp);
+        if (storedOtp == null || storedOtp.ExpiryTime < DateTime.UtcNow)
+        {
+            return new AuthResult
+            {
+                Success = false,
+                Message = "Invalid or expired OTP."
+            };
+        }
+
+        // Cập nhật mật khẩu mới
         user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        await _context.SaveChangesAsync();
+
+        // Xóa OTP sau khi sử dụng
+        _context.OtpCodes.Remove(storedOtp);
         await _context.SaveChangesAsync();
 
         return new AuthResult

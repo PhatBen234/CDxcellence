@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Unilever.CDExcellent.API.Models.Dto;
 using Unilever.CDExcellent.API.Services.IService;
 
@@ -6,6 +7,7 @@ namespace Unilever.CDExcellent.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // 🔒 Yêu cầu đăng nhập cho tất cả API
     public class UserTaskController : ControllerBase
     {
         private readonly IUserTaskService _userTaskService;

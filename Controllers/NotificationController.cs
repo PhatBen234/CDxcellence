@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Unilever.CDExcellent.API.Services.IService;
 using Unilever.CDExcellent.API.Models.Dto;
@@ -8,6 +9,7 @@ namespace Unilever.CDExcellent.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // 🔒 Yêu cầu đăng nhập cho tất cả API
     public class NotificationController : ControllerBase
     {
         private readonly INotificationService _notificationService;

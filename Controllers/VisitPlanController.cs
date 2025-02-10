@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Unilever.CDExcellent.API.Models.Dto;
 using Unilever.CDExcellent.API.Services.IService;
 
@@ -6,6 +7,7 @@ namespace Unilever.CDExcellent.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // 🔒 Yêu cầu đăng nhập cho tất cả API
     public class VisitPlanController : ControllerBase
     {
         private readonly IVisitPlanService _visitPlanService;
@@ -64,12 +66,12 @@ namespace Unilever.CDExcellent.API.Controllers
 
             return NoContent();
         }
+
         [HttpGet("search")]
         public async Task<IActionResult> SearchVisitPlans([FromQuery] string keyword)
         {
             var visitPlans = await _visitPlanService.SearchVisitPlansAsync(keyword);
             return Ok(visitPlans);
         }
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Unilever.CDExcellent.API.Models.Dto;
 using Unilever.CDExcellent.API.Services.IService;
 
@@ -6,6 +7,7 @@ namespace Unilever.CDExcellent.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // 🔒 Yêu cầu đăng nhập cho tất cả API
     public class DistributorController : ControllerBase
     {
         private readonly IDistributorService _distributorService;
@@ -15,7 +17,8 @@ namespace Unilever.CDExcellent.API.Controllers
             _distributorService = distributorService;
         }
 
-        // Create new distributor
+        // 🔒 Chỉ Admin hoặc Owner được tạo Distributor
+        [Authorize(Roles = "Admin,Owner")]
         [HttpPost]
         public async Task<IActionResult> CreateDistributor([FromBody] DistributorDto dto)
         {
@@ -30,7 +33,7 @@ namespace Unilever.CDExcellent.API.Controllers
             }
         }
 
-        // Get all distributors
+        // 🔒 Phải đăng nhập mới xem danh sách Distributor
         [HttpGet]
         public async Task<IActionResult> GetAllDistributors()
         {
@@ -38,7 +41,7 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(distributors);
         }
 
-        // Get distributor by ID
+        // 🔒 Phải đăng nhập mới xem chi tiết Distributor
         [HttpGet("{id}")]
         public async Task<IActionResult> GetDistributorById(int id)
         {
@@ -49,7 +52,8 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(distributor);
         }
 
-        // Update distributor by ID
+        // 🔒 Chỉ Admin hoặc Owner được cập nhật Distributor
+        [Authorize(Roles = "Admin,Owner")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateDistributor(int id, [FromBody] DistributorDto dto)
         {
@@ -60,7 +64,8 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(updatedDistributor);
         }
 
-        // Delete distributor by ID
+        // 🔒 Chỉ Admin hoặc Owner được xóa Distributor
+        [Authorize(Roles = "Admin,Owner")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDistributor(int id)
         {

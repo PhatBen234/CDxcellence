@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Unilever.CDExcellent.API.Models.Entities;
 using Unilever.CDExcellent.API.Services.IService;
 
 namespace Unilever.CDExcellent.API.Controllers
 {
+    [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class AreaController : ControllerBase
@@ -15,7 +17,6 @@ namespace Unilever.CDExcellent.API.Controllers
             _areaService = areaService;
         }
 
-        // GET: api/area
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Area>>> GetAllAreas()
         {
@@ -23,19 +24,17 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(areas);
         }
 
-        // GET: api/area/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Area>> GetAreaById(int id)
         {
             var area = await _areaService.GetAreaByIdAsync(id);
             if (area == null)
-            {
                 return NotFound();
-            }
+
             return Ok(area);
         }
 
-        // POST: api/area
+        [Authorize(Roles = "Admin,Owner")]
         [HttpPost]
         public async Task<ActionResult<Area>> CreateArea([FromBody] Area area)
         {
@@ -43,39 +42,29 @@ namespace Unilever.CDExcellent.API.Controllers
             return CreatedAtAction(nameof(GetAreaById), new { id = createdArea.Id }, createdArea);
         }
 
-        // PUT: api/area/{id}
-        // In AreaController.cs
+        [Authorize(Roles = "Admin,Owner")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateArea(int id, [FromBody] Area area)
         {
-            try
-            {
-                var updatedArea = await _areaService.UpdateAreaAsync(id, area);
+            var updatedArea = await _areaService.UpdateAreaAsync(id, area);
+            if (updatedArea == null)
+                return NotFound("Area not found.");
 
-                if (updatedArea == null)
-                    return NotFound("Area not found.");
-
-                return Ok(updatedArea);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(updatedArea);
         }
 
-
-        // DELETE: api/area/{id}
+        [Authorize(Roles = "Admin,Owner")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteArea(int id)
         {
             var success = await _areaService.DeleteAreaAsync(id);
             if (!success)
-            {
                 return NotFound();
-            }
+
             return NoContent();
         }
-        // In AreaController.cs
+
+        [Authorize(Roles = "Admin,Owner")]
         [HttpDelete]
         public async Task<IActionResult> DeleteAreas([FromBody] List<int> areaIds, [FromQuery] bool disable = false)
         {
@@ -83,7 +72,6 @@ namespace Unilever.CDExcellent.API.Controllers
                 return BadRequest("Area IDs are required.");
 
             var result = await _areaService.DeleteAreasAsync(areaIds, disable);
-
             if (!result)
                 return NotFound("No areas found with the provided IDs.");
 
@@ -91,43 +79,7 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(new { message });
         }
 
-         [HttpPost("{areaId}/users/assign")]
-        public async Task<IActionResult> AssignUsersToArea(int areaId, [FromBody] List<int> userIds)
-        {
-            if (userIds == null || !userIds.Any())
-                return BadRequest("UserIds cannot be null or empty.");
-
-            var result = await _areaService.AssignUsersToAreaAsync(areaId, userIds);
-            if (!result)
-                return NotFound("Area or some users not found.");
-
-            return Ok("Users assigned to the area successfully.");
-        }
-
-        // 2. Xóa danh sách người dùng khỏi Area
-        [HttpDelete("{areaId}/users/remove")]
-        public async Task<IActionResult> RemoveUsersFromArea(int areaId, [FromBody] List<int> userIds)
-        {
-            if (userIds == null || !userIds.Any())
-                return BadRequest("UserIds cannot be null or empty.");
-
-            var result = await _areaService.RemoveUsersFromAreaAsync(areaId, userIds);
-            if (!result)
-                return NotFound("Area or some users not found.");
-
-            return Ok("Users removed from the area successfully.");
-        }
-
-        // 3. Lấy danh sách người dùng thuộc Area
-        [HttpGet("{areaId}/users")]
-        public async Task<IActionResult> GetUsersByAreaId(int areaId)
-        {
-            var users = await _areaService.GetUsersByAreaIdAsync(areaId);
-            if (!users.Any())
-                return NotFound("No users found for this area.");
-
-            return Ok(users);
-        }
+        [Authorize(Roles = "Admin,Owner")]
         [HttpPost("import")]
         public async Task<IActionResult> ImportAreas([FromForm] IFormFile file)
         {
@@ -142,6 +94,42 @@ namespace Unilever.CDExcellent.API.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,Owner")]
+        [HttpPost("{areaId}/users/assign")]
+        public async Task<IActionResult> AssignUsersToArea(int areaId, [FromBody] List<int> userIds)
+        {
+            if (userIds == null || !userIds.Any())
+                return BadRequest("UserIds cannot be null or empty.");
 
+            var result = await _areaService.AssignUsersToAreaAsync(areaId, userIds);
+            if (!result)
+                return NotFound("Area or some users not found.");
+
+            return Ok("Users assigned to the area successfully.");
+        }
+
+        [Authorize(Roles = "Admin,Owner")]
+        [HttpDelete("{areaId}/users/remove")]
+        public async Task<IActionResult> RemoveUsersFromArea(int areaId, [FromBody] List<int> userIds)
+        {
+            if (userIds == null || !userIds.Any())
+                return BadRequest("UserIds cannot be null or empty.");
+
+            var result = await _areaService.RemoveUsersFromAreaAsync(areaId, userIds);
+            if (!result)
+                return NotFound("Area or some users not found.");
+
+            return Ok("Users removed from the area successfully.");
+        }
+
+        [HttpGet("{areaId}/users")]
+        public async Task<IActionResult> GetUsersByAreaId(int areaId)
+        {
+            var users = await _areaService.GetUsersByAreaIdAsync(areaId);
+            if (!users.Any())
+                return NotFound("No users found for this area.");
+
+            return Ok(users);
+        }
     }
 }

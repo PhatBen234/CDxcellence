@@ -21,16 +21,16 @@ public class UserService : IUserService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    private bool IsAdmin()
+    private bool HasPermission()
     {
         var userRole = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
-        return userRole == "Admin";
+        return userRole == "Admin" || userRole == "Owner";
     }
 
     public async Task<IEnumerable<User>> GetAllUsersAsync()
     {
-        if (!IsAdmin())
-            throw new UnauthorizedAccessException("You must be an Admin to access this resource.");
+        if (!HasPermission())
+            throw new UnauthorizedAccessException("You must be an Admin or Owner to access this resource.");
 
         return await _context.Users.AsNoTracking().ToListAsync();
     }
@@ -54,7 +54,9 @@ public class UserService : IUserService
 
     public async Task<User> CreateUserAsync(User newUser)
     {
-        if (!IsAdmin() && newUser.Role == "Admin")
+        var userRole = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+
+        if (!HasPermission() || (newUser.Role == "Admin" && userRole != "Admin"))
         {
             throw new UnauthorizedAccessException("Only Admin can create another Admin user.");
         }
@@ -67,7 +69,6 @@ public class UserService : IUserService
 
         newUser.Password = BCrypt.Net.BCrypt.HashPassword(newUser.Password);
         newUser.Role = string.IsNullOrEmpty(newUser.Role) ? "User" : newUser.Role;
-        newUser.IsAdmin = newUser.Role == "Admin";
 
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync();
@@ -80,8 +81,8 @@ public class UserService : IUserService
         var existingUser = await _context.Users.FindAsync(id);
         if (existingUser == null) return null;
 
-        if (user.Role != existingUser.Role && !IsAdmin())
-            throw new UnauthorizedAccessException("Only Admin can change user roles.");
+        if (user.Role != existingUser.Role && !HasPermission())
+            throw new UnauthorizedAccessException("Only Admin or Owner can change user roles.");
 
         existingUser.FullName = user.FullName;
         existingUser.Email = user.Email;
@@ -99,8 +100,8 @@ public class UserService : IUserService
 
     public async Task<bool> DeleteUserAsync(int id)
     {
-        if (!IsAdmin())
-            throw new UnauthorizedAccessException("You must be an Admin to delete users.");
+        if (!HasPermission())
+            throw new UnauthorizedAccessException("You must be an Admin or Owner to delete users.");
 
         var user = await _context.Users.FindAsync(id);
         if (user == null) return false;
@@ -112,8 +113,8 @@ public class UserService : IUserService
 
     public async Task<bool> ImportUsersFromExcelAsync(IFormFile file)
     {
-        if (!IsAdmin())
-            throw new UnauthorizedAccessException("You must be an Admin to import users.");
+        if (!HasPermission())
+            throw new UnauthorizedAccessException("You must be an Admin or Owner to import users.");
 
         try
         {
@@ -133,9 +134,8 @@ public class UserService : IUserService
                         {
                             FullName = worksheet.Cells[row, 1].Text,
                             Email = worksheet.Cells[row, 2].Text,
-                            Password = BCrypt.Net.BCrypt.HashPassword("defaultpassword"), // Hash default password
-                            Role = worksheet.Cells[row, 3].Text,
-                            IsAdmin = false // Imported users are not admins by default
+                            Password = BCrypt.Net.BCrypt.HashPassword("defaultpassword"),
+                            Role = worksheet.Cells[row, 3].Text
                         };
 
                         users.Add(user);
