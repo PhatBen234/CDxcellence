@@ -17,10 +17,16 @@ namespace Unilever.CDExcellent.API.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<UserTask> UserTasks { get; set; }
 
+        // CMS Tables
+        public DbSet<Article> Articles { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // AreaUser Relationship
             modelBuilder.Entity<AreaUser>()
                 .HasKey(au => new { au.AreaId, au.UserId });
 
@@ -34,11 +40,13 @@ namespace Unilever.CDExcellent.API.Data
                 .WithMany(u => u.AreaUsers)
                 .HasForeignKey(au => au.UserId);
 
+            // Distributor Relationship
             modelBuilder.Entity<Distributor>()
                 .HasOne(d => d.Area)
                 .WithMany(a => a.Distributors)
                 .HasForeignKey(d => d.AreaId);
 
+            // VisitPlanGuest Relationship
             modelBuilder.Entity<VisitPlanGuest>()
                 .HasKey(vpg => new { vpg.VisitPlanId, vpg.GuestId });
 
@@ -52,12 +60,14 @@ namespace Unilever.CDExcellent.API.Data
                 .WithMany()
                 .HasForeignKey(vpg => vpg.GuestId);
 
+            // Notification
             modelBuilder.Entity<Notification>(entity =>
             {
                 entity.HasKey(n => n.Id);
                 entity.Property(n => n.Message).IsRequired();
             });
 
+            // UserTask Relationship
             modelBuilder.Entity<UserTask>()
                 .HasOne(t => t.VisitPlan)
                 .WithMany(vp => vp.UserTasks)
@@ -67,6 +77,31 @@ namespace Unilever.CDExcellent.API.Data
                 .HasOne(t => t.Assignee)
                 .WithMany()
                 .HasForeignKey(t => t.AssigneeId);
+
+            // Article Relationships
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.Category)
+                .WithMany(c => c.Articles)
+                .HasForeignKey(a => a.CategoryId);
+
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.Author)
+                .WithMany(u => u.Articles)
+                .HasForeignKey(a => a.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict); // Tránh xóa User sẽ gây lỗi khóa ngoại
+
+            // Comment Relationships
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.Article)
+                .WithMany(a => a.Comments)
+                .HasForeignKey(c => c.ArticleId)
+                .OnDelete(DeleteBehavior.Cascade); // Xóa Article thì xóa Comment
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Comments)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict); // Không cho phép xóa User kéo theo xóa Comment
         }
     }
 }

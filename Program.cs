@@ -26,10 +26,15 @@ builder.Services.AddScoped<IAreaService, AreaService>();
 builder.Services.AddScoped<IDistributorService, DistributorService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-// Register VisitPlan service
+// Register VisitPlan, Notification, and UserTask services
 builder.Services.AddScoped<IVisitPlanService, VisitPlanService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IUserTaskService, UserTaskService>();
+
+// ? Register CMS Services (Article, Category, Comment)
+builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 // Register IHttpContextAccessor for accessing the current HTTP context
 builder.Services.AddHttpContextAccessor();
@@ -86,11 +91,11 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "Unilever CDExcellent API",
         Version = "v1",
-        Description = "API for managing users, distributors, and areas",
+        Description = "API for managing users, distributors, areas, and CMS",
     });
 });
 
-// Add CORS policy if required (uncomment if needed)
+// Add CORS policy if required
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins", builder =>
@@ -112,12 +117,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// Enable CORS (uncomment if needed)
+// Enable CORS
 app.UseCors("AllowAllOrigins");
 
 // Enable Authentication and Authorization
-app.UseAuthentication(); // Add authentication middleware
-app.UseAuthorization();  // Add authorization middleware
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Map controllers to routes
 app.MapControllers();
