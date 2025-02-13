@@ -35,6 +35,8 @@ builder.Services.AddScoped<IUserTaskService, UserTaskService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
 
 // Register IHttpContextAccessor for accessing the current HTTP context
 builder.Services.AddHttpContextAccessor();
