@@ -18,7 +18,7 @@ namespace Unilever.CDExcellent.API.Services
         {
             return await _context.Comments
                 .Where(c => c.ArticleId == articleId)
-                .Include(c => c.User) // Load thông tin người bình luận
+                .Include(c => c.User)
                 .ToListAsync();
         }
 

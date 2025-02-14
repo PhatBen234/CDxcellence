@@ -6,7 +6,7 @@ using Unilever.CDExcellent.API.Models.Dto;
 
 [Route("api/dashboard")]
 [ApiController]
-[Authorize] // Yêu cầu xác thực trước khi truy cập
+[Authorize] 
 public class DashboardController : ControllerBase
 {
     private readonly IDashboardService _dashboardService;

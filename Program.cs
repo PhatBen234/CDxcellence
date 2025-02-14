@@ -36,6 +36,7 @@ builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IMyAccountService, MyAccountService>();
 
 
 // Register IHttpContextAccessor for accessing the current HTTP context

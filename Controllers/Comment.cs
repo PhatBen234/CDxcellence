@@ -15,7 +15,6 @@ namespace Unilever.CDExcellent.API.Controllers
             _commentService = commentService;
         }
 
-        // Lấy danh sách bình luận của một bài viết
         [HttpGet("article/{articleId}")]
         public async Task<IActionResult> GetCommentsByArticleId(int articleId)
         {
@@ -23,7 +22,6 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(comments);
         }
 
-        // Tạo bình luận mới
         [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] Comment comment)
         {
@@ -34,7 +32,6 @@ namespace Unilever.CDExcellent.API.Controllers
             return CreatedAtAction(nameof(GetCommentsByArticleId), new { articleId = createdComment.ArticleId }, createdComment);
         }
 
-        // Cập nhật bình luận
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateComment(int id, [FromBody] Comment comment)
         {
@@ -45,7 +42,6 @@ namespace Unilever.CDExcellent.API.Controllers
             return Ok(updatedComment);
         }
 
-        // Xóa bình luận
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteComment(int id)
         {

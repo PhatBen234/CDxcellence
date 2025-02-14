@@ -1,19 +1,19 @@
-﻿using Unilever.CDExcellent.API.Models.Entities;
-
-public class User
+﻿namespace Unilever.CDExcellent.API.Models.Entities
 {
-    public int Id { get; set; }
-    public string FullName { get; set; }
-    public string Email { get; set; }
-    public string Password { get; set; }
-    public string Role { get; set; } = "User";
-    public ICollection<AreaUser> AreaUsers { get; set; } = new List<AreaUser>();
+    public class User
+    {
+        public int Id { get; set; }
+        public string FullName { get; set; } = string.Empty; 
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string Role { get; set; } = "User";
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Thêm CreatedAt
 
-    // Thêm quan hệ với bài viết
-    public ICollection<Article> Articles { get; set; } = new List<Article>();
+        public ICollection<AreaUser> AreaUsers { get; set; } = new List<AreaUser>();
+        public ICollection<Article> Articles { get; set; } = new List<Article>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<UserTask> UserTasks { get; set; } = new List<UserTask>(); 
 
-    // Thêm quan hệ với bình luận
-    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
-
-    public bool HasAdminPrivileges() => Role == "Admin" || Role == "Owner";
+        public bool HasAdminPrivileges() => Role == "Admin" || Role == "Owner";
+    }
 }

@@ -33,7 +33,6 @@ namespace Unilever.CDExcellent.API.Services.Service
             _context.VisitPlans.Add(visitPlan);
             await _context.SaveChangesAsync();
 
-            // Gửi thông báo cho các khách mời
             foreach (var guestId in dto.GuestIds)
             {
                 var title = "Visit Plan Invitation";
@@ -105,7 +104,6 @@ namespace Unilever.CDExcellent.API.Services.Service
 
             await _context.SaveChangesAsync();
 
-            // Gửi thông báo đến khách mời mới
             var newGuestIds = dto.GuestIds.Except(previousGuestIds);
             foreach (var newGuestId in newGuestIds)
             {
@@ -135,7 +133,7 @@ namespace Unilever.CDExcellent.API.Services.Service
 
             var visitPlans = await _context.VisitPlans
                 .Where(vp => vp.Purpose.Contains(keyword) ||
-                             vp.Distributor.Name.Contains(keyword)) // Tìm theo tên Distributor hoặc Purpose
+                             vp.Distributor.Name.Contains(keyword))
                 .ToListAsync();
 
             return visitPlans.Select(vp => new VisitPlanDto
